@@ -1,0 +1,19 @@
+@(competitions : Map[String, reach.Comp])
+
+<!DOCTYPE html>
+<head>
+
+</head>
+<body>
+
+    <table>
+        @for((_ , competition) <- competitions) {
+            <tr>
+                <td>
+                  <a href="@routes.Competition.display(competition.id)">@competition.id</a>
+                </td>
+            </tr>
+        }
+    </table>
+
+</body>

@@ -1,0 +1,66 @@
+@(competition : reach.Comp, contestantForm : Form[controllers.Competition.Contestant])(implicit request : Request[_])
+
+@main("Competition") {
+
+
+<script type="text/javascript">
+
+    function score(comp, email) {
+        var url = "@routes.Competition.score(competition.id, "")" ;
+        url = url  + email;
+
+        var xmlHttp  = new XMLHttpRequest();
+        xmlHttp.open( "GET", url, false);
+        xmlHttp.send( null );
+    }
+
+
+    $(document).ready(function() {
+
+      var websocket = new WebSocket("@routes.Competition.watch().webSocketURL(false)" + "?id=" + "@competition.id" );
+      websocket.onmessage = function(event) {
+        $("#socket").html(event.data);
+      };
+
+
+        $(".qrcode").each( function( index ) {
+
+         var email = $(this).data("email");
+         var url = '@routes.Competition.score(competition.id, "").absoluteURL()' + email;
+         $(this).qrcode({width:64, height:64, text:  url });
+        });
+    });
+
+
+
+
+</script>
+
+<h2>
+    @competition.id
+</h2>
+
+<ul>
+    @for( (email, score) <- competition.participants) {
+          <li>
+              <button onclick='score( "@competition.id", "@email" )'  > score</button>
+              <div class="qrcode" data-email="@email" > </div>
+              @email  ---- @score
+          </li>
+    }
+</ul>
+
+
+<div>
+    results will go here:
+    <div id="socket" />
+</div>
+
+
+
+
+@helper.form(action = routes.Competition.addParticipant(competition.id)) {
+    @helper.inputText(contestantForm("email"), 'id -> "email")
+    <input type="submit" value="Add to Competition">
+}
+}
